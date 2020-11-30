@@ -1,6 +1,7 @@
 /**
  * Interface for storing a key, value pair
  */
+
 public interface Pair<Key, Value> {
 
     /**

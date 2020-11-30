@@ -1,4 +1,5 @@
 import java.util.Iterator;
+//BY KENNETH TANG AND NATHAN TRAN
 
 public class BSTThr<Key extends Comparable<Key>, Value> extends BST<Key, Value> {
 
@@ -28,59 +29,41 @@ public class BSTThr<Key extends Comparable<Key>, Value> extends BST<Key, Value> 
     //Override private put(Node, Key, Value) of BST
     //NO NEED TO OVERRIDE THE PUBLIC VERSION!
     //THIS METHOD REQUIRES THE MOST WORK!
-    private Node put(Node x, Key key, Value val) {
-
+    protected Node put(Node x, Key key, Value val) {
         if (x == null) {
-
             Node newNode = new Node(key, val, 0);
-
             if (parent != null) {
-
                 int cmp = parent.key.compareTo(key);
-                threadHelper(newNode, cmp);
+                threadHelper(newNode, cmp); //updates prev and next for necessary nodes
             }
-
-            if (newNode.prev != null)
-                System.out.println("prev = " + newNode.prev.key);
-            if (newNode.next != null)
-                System.out.println("next = " + newNode.next.key);
-
             return newNode;
         }
-
         int cmp = key.compareTo(x.key);
-
         if (cmp < 0) {
             parent = x;
             x.left = put(x.left, key, val);
-
         } else if (cmp > 0) {
             parent = x;
             x.right = put(x.right, key, val);
-
         } else {
             x.val = val;
-            if (x.prev != null)
-                System.out.println("prev = " + x.prev.key);
-            if (x.next != null)
-                System.out.println("next = " + x.next.key);
         }
         x.size = 1 + size(x.left) + size(x.right);
-
         return x;
     }
 
 
     public Iterable<Pair<Key, Value>> pairs() {
         //Create PairList (see below) in here, returns all pairs.
-        return null;
+        Node first = getLoNode();
+        Node last = getHighNode();
+        return new PairList(first, last);
     }
 
     public Iterable<Pair<Key, Value>> pairs(Key lo, Key hi) {
         //Create PairList in here (see below), returns pairs between lo and hi.
-        Node first = getPair(lo);
-        Node last = getPair(hi);
-
+        Node first = getNode(lo);
+        Node last = getNode(hi);
 
         return new PairList(first, last);
     }
@@ -128,15 +111,12 @@ public class BSTThr<Key extends Comparable<Key>, Value> extends BST<Key, Value> 
                 v = currentNode.val;
                 currentPair = new MyPair<>(k, v);
                 currentNode = currentNode.next;
-
-
                 return currentPair;
             }
 
             public boolean hasNext() {
                 //determine if there's a next element
                 return currentNode != lastNode.next;
-
             }
 
             public void remove() {
@@ -170,7 +150,7 @@ public class BSTThr<Key extends Comparable<Key>, Value> extends BST<Key, Value> 
         }
     }
 
-    //Recommended helper methods (useful in developing pairs()):
+    //Update prev and next for necessary nodes
     private void threadHelper(Node newNode, int cmp) {
         if (cmp > 0) {
             if (parent.prev != null) {
@@ -191,61 +171,47 @@ public class BSTThr<Key extends Comparable<Key>, Value> extends BST<Key, Value> 
     }
 
     //return Node with Key k
-    private Node getPair(Key k) {
-        return getPair(root, k);
+    private Node getNode(Key k) {
+        return getNode(root, k);
     }
 
     //helper method for above:
-    private Node getPair(Node x, Key k) {
+    //will find the next closest value within the range if key cannot be found
+    private Node getNode(Node x, Key k) {
         //use binary search
 
         if (k == null) throw new IllegalArgumentException("calls get() with a null key");
         if (x == null) return null;
         int cmp = k.compareTo(x.key);
         if (cmp < 0)
-            if (x.left == null)
-                return x;
-            else
-                return getPair(x.left, k);
+            if (x.left == null) return x;
+            else return getNode(x.left, k);
         else if (cmp > 0)
-            if (x.right == null)
-                return x;
-            else
-                return getPair(x.right, k);
+            if (x.right == null) return x;
+            else return getNode(x.right, k);
         else return x;
     }
 
-    /*
-    private Pair<Key, Value> getPair(Key k) {
-        return getPair(root, k);
+    private Node getLoNode() {
+        return getLoNode(root);
     }
 
-    //helper method for above:
-    private Pair<Key, Value> getPair(Node x, Key k) {
-        //use binary search
-
-        if (k == null) throw new IllegalArgumentException("calls get() with a null key");
-        if (x == null) return null;
-        int cmp = k.compareTo(x.key);
-        if (cmp < 0)
-            if (x.left == null)
-                return new MyPair<>(x.key, x.val);
-            else
-                return getPair(x.left, k);
-        else if (cmp > 0)
-            if (x.right == null)
-                return new MyPair<>(x.key, x.val);
-            else
-                return getPair(x.right, k);
-        else return new MyPair<>(x.key, x.val);
-    }
-
-     */
-    private void iterateKey(Iterable<Key> x) {
-        for (Key key : x) {
-            System.out.println(key);
-
+    private Node getLoNode(Node x) {
+        while (x.left != null) {
+            x = x.left;
         }
+        return x;
+    }
+
+    private Node getHighNode() {
+        return getHighNode(root);
+    }
+
+    private Node getHighNode(Node x) {
+        while (x.right != null) {
+            x = x.right;
+        }
+        return x;
     }
 
     //To get you started with client:
@@ -275,23 +241,9 @@ public class BSTThr<Key extends Comparable<Key>, Value> extends BST<Key, Value> 
         System.out.println("Put derek");
         st.put(d, 4);
 
-
-        st.iterateKey(st.keys());
-        System.out.println(st.getPair("electric"));
+        System.out.println(st.getNode("electric"));
         for (Pair x : st.pairs("abigail", "zebra"))
             System.out.println(x);
-
-
-        //System.out.println(st.deleteMin());
-        //String lo = args[0];
-        //String hi = args[1];
-        //BSTThr<Key, Value>.MyPair p = new MyPair<"hi", 9>;
-
-        /*
-         You can now write code of this form:
-         for (Pair<String, Integer> p : st.pairs(lo, hi))
-         StdOut.println(p);
-         */
 
     }
 }

@@ -166,7 +166,7 @@ public class BST<Key extends Comparable<Key>, Value> {
      * @param val the value
      * @throws IllegalArgumentException if {@code key} is {@code null}
      */
-    protected void put(Key key, Value val) {
+    private void put(Key key, Value val) {
         if (key == null) throw new IllegalArgumentException("calls put() with a null key");
         if (val == null) {
             delete(key);
@@ -176,7 +176,7 @@ public class BST<Key extends Comparable<Key>, Value> {
         assert check();
     }
 
-    protected Node put(Node x, Key key, Value val) {
+    private Node put(Node x, Key key, Value val) {
         if (x == null)
 
 
